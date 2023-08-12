@@ -17,7 +17,8 @@ CC = gcc
 HEADER = philosophers.h\
 	utiles_philo.c
 
-SRC = philosophers.c
+SRC = philosophers.c\
+	utiles_philo.c
 
 CFLAGS = -Wextra -Werror -Wall
 
