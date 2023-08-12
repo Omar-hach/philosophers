@@ -32,9 +32,20 @@ int check_arg(int argc,char **argv)
 	return (0);
 }
 
+void *function()
+{
+	struct timeval lol;
+	
+	gettimeofday(&lol, NULL);
+	printf("[%ld]I am philo number",lol.tv_sec); 
+	return (NULL);
+}
+
 int	main(int argc,char **argv)
 {
-	pthread_t thread;
+	int philo_num;
+	int i;
+	pthread_t *thread;
 
 	if (argc > 5 || argc < 4)
 		return (1);
@@ -43,7 +54,23 @@ int	main(int argc,char **argv)
 		write(1, "Error\n", 7);
 		return (1);
 	}
-	pthread_create(&thread, NULL, function, NULL);
-	pthread_join(&thread, NULL);
-	
+	philo_num = ft_atoi(argv[1]);
+	i = -1;
+	thread = (pthread_t *)malloc(sizeof(pthread_t) * philo_num);
+	while(++i < philo_num)
+	{
+		if(pthread_create(thread + i, NULL, &function, NULL))
+			return (1);
+		usleep(10);
+		printf(" %d\n", i);
+	}
+	i = -1;
+	while(++i < philo_num)
+	{
+		if(pthread_join(*(thread + i), NULL))
+			return (1);
+		usleep(10);
+		printf("philo is number %d is dead\n", i);
+	}
+	free(thread);
 }
