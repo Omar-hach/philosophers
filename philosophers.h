@@ -19,6 +19,34 @@
 # include <sys/time.h>
 # include <pthread.h>
 
-int	ft_atoi(const char *str);
+typedef struct s_general_info
+{
+	int	philo_num;
+	int	*forke;
+	int	time_die;
+	int	time_eat;
+	int	time_to_sleep;
+	int	course_number;
+	int	int_time;
+}t_general_info;
+
+typedef struct s_resource
+{
+	int				philo_id;
+	int				survive;
+	int				full;
+	pthread_t		thread;
+	t_general_info	*tgi;
+	pthread_mutex_t	the_mutex;
+}t_resource;
+
+int		ft_atoi(char *str);
+void	*ft_calloc(size_t count, size_t size);
+int		taking_folk(t_resource *rsrc);
+int		eating(t_resource *rsrc);
+int		sleeping(t_resource *rsrc);
+int		thinking(t_resource *rsrc);
+int		is_dead(t_resource *rsrc);
+int		tick_tack(int time);
 
 #endif

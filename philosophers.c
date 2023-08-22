@@ -12,7 +12,7 @@
 
 #include "philosophers.h"
 
-int check_arg(int argc,char **argv)
+int	check_arg(int argc, char **argv)
 {
 	int	i;
 	int	j;
@@ -25,52 +25,105 @@ int check_arg(int argc,char **argv)
 			++j;
 		while (argv[i][++j])
 		{
-			if(argv[i][j] < '0' || argv[i][j] > '9') // argv[i][j] > 0
+			if (argv[i][j] < '0' || argv[i][j] > '9')
 				return (1);
 		}
 	}
 	return (0);
 }
 
-void *function()
+void	*daily_task(void *p)
 {
-	struct timeval lol;
-	
-	gettimeofday(&lol, NULL);
-	printf("[%ld]I am philo number",lol.tv_sec); 
+	t_resource	*rsrc;
+	int			rythme;
+
+	rsrc = (t_resource *)p;
+	rythme = rsrc->tgi->time_eat + rsrc->tgi->time_to_sleep;
+	if (!(rsrc->philo_id % 2))
+	{
+		thinking(rsrc);
+		usleep(rsrc->tgi->time_eat * 1000);
+	}
+	if (rsrc->tgi->philo_num % 2 && rsrc->tgi->philo_num == rsrc->philo_id)
+	{
+		thinking(rsrc);
+		usleep(rsrc->tgi->time_eat * 2000);
+	}
+	while (1)
+	{
+		taking_folk(rsrc);
+		eating(rsrc);
+		if (is_dead(rsrc))
+			break ;
+		sleeping(rsrc);
+		thinking(rsrc);
+	}
+	//printf("philo is number %d is dead\n", rsrc->philo_id);
+	//usleep(10);
 	return (NULL);
 }
 
-int	main(int argc,char **argv)
+t_general_info	*general_info_init(int argc, char **argv, t_general_info *tgi)
 {
-	int philo_num;
-	int i;
-	pthread_t *thread;
+	struct timeval	lol;
 
-	if (argc > 5 || argc < 4)
+	tgi = (t_general_info *)ft_calloc(1, sizeof(t_general_info));
+	if (!tgi)
+		return (NULL);
+	tgi->philo_num = ft_atoi(argv[1]);
+	tgi->time_die = ft_atoi(argv[2]);
+	tgi->time_eat = ft_atoi(argv[3]);
+	tgi->time_to_sleep = ft_atoi(argv[4]);
+	if (argc == 6)
+		tgi->course_number = ft_atoi(argv[5]);
+	gettimeofday(&lol, NULL);
+	tgi->int_time = lol.tv_usec / 1000 + lol.tv_sec * (uint64_t)1000;
+	tgi->forke = (int *)ft_calloc(1, sizeof(int));
+	return (tgi);
+}
+
+int	main(int argc, char **argv)
+{
+	t_general_info	*tgi;
+	t_resource		*rsrc;
+	int				i;
+
+	tgi = NULL;
+	i = -1;
+	if (argc > 6 || argc < 5)
 		return (1);
 	if (check_arg(argc, argv))
 	{
 		write(1, "Error\n", 7);
 		return (1);
 	}
-	philo_num = ft_atoi(argv[1]);
-	i = -1;
-	thread = (pthread_t *)malloc(sizeof(pthread_t) * philo_num);
-	while(++i < philo_num)
+	tgi = general_info_init(argc, argv, tgi);
+	if (!tgi)
+		return (1);
+	rsrc = (t_resource *)ft_calloc(tgi->philo_num, sizeof(t_resource));
+	if (!rsrc)
 	{
-		if(pthread_create(thread + i, NULL, &function, NULL))
+		free(tgi->forke);
+		free(tgi);
+		return (1);
+	}
+	while (++i < tgi->philo_num)
+	{
+		rsrc[i].philo_id = i + 1;
+		rsrc[i].tgi = tgi;
+		rsrc[i].full = 0;
+		pthread_mutex_init(&(rsrc[i].the_mutex), NULL);
+		if (pthread_create(&(rsrc[i].thread), NULL, &daily_task, rsrc + i))
 			return (1);
-		usleep(10);
-		printf(" %d\n", i);
 	}
 	i = -1;
-	while(++i < philo_num)
+	while (++i < tgi->philo_num)
 	{
-		if(pthread_join(*(thread + i), NULL))
+		if (pthread_join(rsrc[i].thread, NULL))
 			return (1);
 		usleep(10);
-		printf("philo is number %d is dead\n", i);
 	}
-	free(thread);
+	free(tgi->forke);
+	free(tgi);
+	free(rsrc);
 }

@@ -15,10 +15,12 @@ NAME = philo
 CC = gcc
 
 HEADER = philosophers.h\
-	utiles_philo.c
+	utiles_philo.c\
+	actions.c
 
 SRC = philosophers.c\
-	utiles_philo.c
+	utiles_philo.c\
+	actions.c
 
 CFLAGS = -Wextra -Werror -Wall
 
