@@ -49,14 +49,18 @@ void	*daily_task(void *p)
 		thinking(rsrc);
 		usleep(rsrc->tgi->time_eat * 2000);
 	}
-	while (1)
+	while (rsrc->course_had < rsrc->tgi->course_number || rsrc->tgi->course_number < 0)
 	{
-		taking_folk(rsrc);
-		eating(rsrc);
-		if (is_dead(rsrc))
+		if (!taking_fork(rsrc))
 			break ;
-		sleeping(rsrc);
-		thinking(rsrc);
+		if (!eating(rsrc))
+			break ;
+		if (!is_dead(rsrc))
+			break ;
+		if (!sleeping(rsrc))
+			break ;
+		if (!thinking(rsrc))
+			break ;
 	}
 	//printf("philo is number %d is dead\n", rsrc->philo_id);
 	//usleep(10);
@@ -74,11 +78,13 @@ t_general_info	*general_info_init(int argc, char **argv, t_general_info *tgi)
 	tgi->time_die = ft_atoi(argv[2]);
 	tgi->time_eat = ft_atoi(argv[3]);
 	tgi->time_to_sleep = ft_atoi(argv[4]);
+	tgi->course_number = -1;
 	if (argc == 6)
 		tgi->course_number = ft_atoi(argv[5]);
 	gettimeofday(&lol, NULL);
 	tgi->int_time = lol.tv_usec / 1000 + lol.tv_sec * (uint64_t)1000;
 	tgi->forke = (int *)ft_calloc(1, sizeof(int));
+	tgi->fork_mutex = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t) * tgi->philo_num);
 	return (tgi);
 }
 
@@ -107,12 +113,16 @@ int	main(int argc, char **argv)
 		free(tgi);
 		return (1);
 	}
+	pthread_mutex_init(&(tgi->time_mutex), NULL);
+	pthread_mutex_init(&(tgi->dead_mutex), NULL);
+	pthread_mutex_init(&(tgi->eat_mutex), NULL);
+	pthread_mutex_init(&(tgi->print_mutex), NULL);
 	while (++i < tgi->philo_num)
 	{
 		rsrc[i].philo_id = i + 1;
 		rsrc[i].tgi = tgi;
 		rsrc[i].full = 0;
-		pthread_mutex_init(&(rsrc[i].the_mutex), NULL);
+		pthread_mutex_init(&(tgi->fork_mutex[i]), NULL);
 		if (pthread_create(&(rsrc[i].thread), NULL, &daily_task, rsrc + i))
 			return (1);
 	}
@@ -123,6 +133,7 @@ int	main(int argc, char **argv)
 			return (1);
 		usleep(10);
 	}
+	free(tgi->fork_mutex);
 	free(tgi->forke);
 	free(tgi);
 	free(rsrc);
