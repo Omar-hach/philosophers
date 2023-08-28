@@ -17,66 +17,58 @@ int	taking_fork(t_resource *rsrc)
 	if (rsrc->philo_id < rsrc->tgi->philo_num)
 	{
 		pthread_mutex_lock(&(rsrc->tgi->fork_mutex[rsrc->philo_id]));
+
 		pthread_mutex_lock(&(rsrc->tgi->print_mutex));
 		if (rsrc->tgi->is_dead)
 			return (0);
 		printf("%d  %d has taken a fork\n", tick_tack(rsrc->tgi->int_time), rsrc->philo_id);
 		pthread_mutex_unlock(&(rsrc->tgi->print_mutex));
-		/*if(rsrc->tgi->forke[rsrc->philo_id]
-			|| rsrc->tgi->forke[rsrc->philo_id - 1])
-		{
-			pthread_mutex_unlock(&(rsrc->tgi->fork_mutex[rsrc->philo_id - 1]));
-			return (1);
-		}*/
-		// rsrc->tgi->forke[rsrc->philo_id] = rsrc->philo_id;
 	}
 	else
 	{
 		pthread_mutex_lock(&(rsrc->tgi->fork_mutex[0]));
+
 		pthread_mutex_lock(&(rsrc->tgi->print_mutex));
 		if (rsrc->tgi->is_dead)
 			return (0);
 		printf("%d  %d has taken a fork\n", tick_tack(rsrc->tgi->int_time), rsrc->philo_id);
 		pthread_mutex_unlock(&(rsrc->tgi->print_mutex));
-		// if(rsrc->tgi->forke[0] || rsrc->tgi->forke[rsrc->philo_id - 1])
-		// {
-		// 	pthread_mutex_unlock(&(rsrc->tgi->fork_mutex[0]));
-		// 	return (1);
-		// }
-		// rsrc->tgi->forke[0] = rsrc->philo_id;
 	}
 	pthread_mutex_lock(&(rsrc->tgi->fork_mutex[rsrc->philo_id - 1]));
+
 	pthread_mutex_lock(&(rsrc->tgi->print_mutex));
 	if (rsrc->tgi->is_dead)
 		return (0);
 	printf("%d  %d has taken a fork\n", tick_tack(rsrc->tgi->int_time), rsrc->philo_id);
 	pthread_mutex_unlock(&(rsrc->tgi->print_mutex));
+
 	return (1);
 }
 
 int	eating(t_resource *rsrc)
 {
-	struct timeval	lol;
+	pthread_mutex_lock(&(rsrc->tgi->time_mutex));
+	rsrc->full = tick_tack(rsrc->tgi->int_time);
+	pthread_mutex_unlock(&(rsrc->tgi->time_mutex));
 
-	gettimeofday(&lol, NULL);
 	pthread_mutex_lock(&(rsrc->tgi->print_mutex));
 	if (rsrc->tgi->is_dead)
 		return (0);
 	printf("%d  %d is eating\n", tick_tack(rsrc->tgi->int_time), rsrc->philo_id);
 	pthread_mutex_unlock(&(rsrc->tgi->print_mutex));
+
 	pthread_mutex_lock(&(rsrc->tgi->eat_mutex));
 	if(rsrc->tgi->course_number > 0)
 		rsrc->course_had++;
 	pthread_mutex_unlock(&(rsrc->tgi->eat_mutex));
+
 	usleep(rsrc->tgi->time_eat * 1000);
+
 	pthread_mutex_unlock(&(rsrc->tgi->fork_mutex[rsrc->philo_id - 1]));
 	if (rsrc->philo_id < rsrc->tgi->philo_num)
 		pthread_mutex_unlock(&(rsrc->tgi->fork_mutex[rsrc->philo_id]));
 	else
 		pthread_mutex_unlock(&(rsrc->tgi->fork_mutex[0]));
-	pthread_mutex_lock(&(rsrc->tgi->time_mutex));
-	rsrc->full = lol.tv_sec * 1000 + lol.tv_usec / 1000 ;
-	pthread_mutex_unlock(&(rsrc->tgi->time_mutex));
 	return (1);
 }
 
@@ -103,16 +95,19 @@ int	thinking(t_resource *rsrc)
 
 int	is_dead(t_resource *rsrc)
 {
-	pthread_mutex_lock(&(rsrc->tgi->dead_mutex));
-	rsrc->survive = tick_tack(rsrc->full);
-	//printf("int time==%d lol==%d\n",rsrc->full, rsrc->survive);
+	pthread_mutex_lock(&(rsrc->tgi->time_mutex));
+	rsrc->survive = tick_tack(rsrc->tgi->int_time) - rsrc->full;
+	pthread_mutex_unlock(&(rsrc->tgi->time_mutex));
+	//printf("survive=%d full=%d int_time=%d\n",rsrc->survive, rsrc->full, rsrc->tgi->int_time);
 	if (rsrc->survive >= rsrc->tgi->time_die)
 	{
+		pthread_mutex_lock(&(rsrc->tgi->print_mutex));
 		rsrc->tgi->is_dead = 1;
 		printf("%d  %d died\n", tick_tack(rsrc->tgi->int_time), rsrc->philo_id);
-		pthread_mutex_unlock(&(rsrc->tgi->dead_mutex));
-		return (0);
+		if (rsrc->tgi->philo_num == 1)
+			pthread_mutex_unlock(&(rsrc->tgi->fork_mutex[0]));
+		pthread_mutex_unlock(&(rsrc->tgi->print_mutex));
+		return (1);
 	}
-	pthread_mutex_unlock(&(rsrc->tgi->dead_mutex));
-	return (1);
+	return (0);
 }

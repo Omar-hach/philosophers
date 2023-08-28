@@ -22,7 +22,6 @@
 typedef struct s_general_info
 {
 	int	philo_num;
-	int	*forke;
 	int	time_die;
 	int	time_eat;
 	int	time_to_sleep;

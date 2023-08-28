@@ -51,6 +51,6 @@ int	tick_tack(int time)
 	struct timeval	lol;
 
 	gettimeofday(&lol, NULL);
-	//printf("int time==%d lol==%d\n", time, lol.tv_usec / 1000);
+	//printf("int time==%d lol==%ld=%d\n", time, lol.tv_sec, lol.tv_usec /1000);
 	return (lol.tv_sec * 1000 + lol.tv_usec / 1000 - time);
 }

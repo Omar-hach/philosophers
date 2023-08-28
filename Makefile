@@ -22,7 +22,7 @@ SRC = philosophers.c\
 	utiles_philo.c\
 	actions.c
 
-CFLAGS = -Wextra -Werror -Wall
+CFLAGS = -Wextra -Werror -Wall -g -fsanitize=thread
 
 OBJ = $(SRC:.c=.o)
 
