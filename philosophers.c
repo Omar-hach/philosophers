@@ -51,10 +51,15 @@ void	*daily_task(void *p)
 	}
 	while (rsrc->course_had < rsrc->tgi->course_number || rsrc->tgi->course_number < 0)
 	{
-		taking_fork(rsrc);
-		eating(rsrc);
-		sleeping(rsrc);
-		thinking(rsrc);
+		if(!taking_fork(rsrc))
+			break;
+		if(!eating(rsrc))
+			break;
+		if(!sleeping(rsrc))
+			break;
+		if(!thinking(rsrc))
+			break;
+		//printf("cource = %d =%d\n", rsrc->course_had < rsrc->tgi->course_number, rsrc->tgi->course_number < 0);
 	}
 	return (NULL);
 }
@@ -116,19 +121,7 @@ int	main(int argc, char **argv)
 		if (pthread_create(&(rsrc[i].thread), NULL, &daily_task, rsrc + i))
 			return (1);
 	}
-	while(i > -2)
-	{
-		i = -1;
-		while(++i < tgi->philo_num)
-		{
-			if(is_dead(&(rsrc[i])))
-			{
-				i = -2;
-				break ;
-			}
-		}
-			//printf(" i=%d ",i);
-	}
+	is_dead(rsrc, tgi);
 	i = -1;
 	while (++i < tgi->philo_num)
 	{

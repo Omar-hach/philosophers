@@ -51,7 +51,7 @@ int		taking_fork(t_resource *rsrc);
 int		eating(t_resource *rsrc);
 int		sleeping(t_resource *rsrc);
 int		thinking(t_resource *rsrc);
-int		is_dead(t_resource *rsrc);
+int		is_dead(t_resource *rsrc, t_general_info *tgi);
 int		tick_tack(int time);
 
 #endif
