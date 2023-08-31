@@ -28,7 +28,9 @@ typedef struct s_general_info
 	int	course_number;
 	int	int_time;
 	int is_dead;
+	int glut;
 	pthread_mutex_t	*fork_mutex;
+	pthread_mutex_t	glut_mutex;
 	pthread_mutex_t	print_mutex;
 	pthread_mutex_t	dead_mutex;
 	pthread_mutex_t	time_mutex;
@@ -44,6 +46,7 @@ typedef struct s_resource
 	pthread_t		thread;
 	t_general_info	*tgi;
 }t_resource;
+int			dead;
 
 int		ft_atoi(char *str);
 void	*ft_calloc(size_t count, size_t size);
@@ -53,5 +56,6 @@ int		sleeping(t_resource *rsrc);
 int		thinking(t_resource *rsrc);
 int		is_dead(t_resource *rsrc, t_general_info *tgi);
 int		tick_tack(int time);
+int		ft_usleep(int time);
 
 #endif

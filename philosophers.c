@@ -42,12 +42,12 @@ void	*daily_task(void *p)
 	if (!(rsrc->philo_id % 2))
 	{
 		thinking(rsrc);
-		usleep(rsrc->tgi->time_eat * 1000);
+		ft_usleep(rsrc->tgi->time_eat * 1000);
 	}
 	if (rsrc->tgi->philo_num % 2 && rsrc->tgi->philo_num == rsrc->philo_id)
 	{
 		thinking(rsrc);
-		usleep(rsrc->tgi->time_eat * 2000);
+		ft_usleep(rsrc->tgi->time_eat * 2000);
 	}
 	while (rsrc->course_had < rsrc->tgi->course_number || rsrc->tgi->course_number < 0)
 	{
@@ -59,8 +59,16 @@ void	*daily_task(void *p)
 			break;
 		if(!thinking(rsrc))
 			break;
-		//printf("cource = %d =%d\n", rsrc->course_had < rsrc->tgi->course_number, rsrc->tgi->course_number < 0);
 	}
+	if (rsrc->course_had == rsrc->tgi->course_number)
+	{
+		pthread_mutex_lock(&(rsrc->tgi->glut_mutex));
+		rsrc->tgi->glut++;
+		pthread_mutex_unlock(&(rsrc->tgi->glut_mutex));
+		while (rsrc->tgi->glut != rsrc->tgi->philo_num)
+			rsrc->full = tick_tack(rsrc->tgi->int_time);
+	}
+	// printf("[%d]cource = %d =%d\n",rsrc->philo_id, rsrc->course_had < rsrc->tgi->course_number, rsrc->tgi->course_number < 0);
 	return (NULL);
 }
 
@@ -110,6 +118,7 @@ int	main(int argc, char **argv)
 	}
 	pthread_mutex_init(&(tgi->time_mutex), NULL);
 	pthread_mutex_init(&(tgi->dead_mutex), NULL);
+	pthread_mutex_init(&(tgi->glut_mutex), NULL);
 	pthread_mutex_init(&(tgi->eat_mutex), NULL);
 	pthread_mutex_init(&(tgi->print_mutex), NULL);
 	while (++i < tgi->philo_num)
@@ -128,8 +137,9 @@ int	main(int argc, char **argv)
 		pthread_mutex_destroy(&(tgi->fork_mutex[i]));
 		if (pthread_join(rsrc[i].thread, NULL))
 			return (1);
-		usleep(10);
+		ft_usleep(10);
 	}
+	pthread_mutex_destroy(&tgi->glut_mutex);
 	pthread_mutex_destroy(&tgi->time_mutex);
 	pthread_mutex_destroy(&tgi->dead_mutex);
 	pthread_mutex_destroy(&tgi->eat_mutex);

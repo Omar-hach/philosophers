@@ -48,9 +48,27 @@ void	*ft_calloc(size_t count, size_t size)
 
 int	tick_tack(int time)
 {
-	struct timeval	lol;
+	struct timeval	now;
 
-	gettimeofday(&lol, NULL);
+	gettimeofday(&now, NULL);
 	//printf("int time==%d lol==%ld=%d\n", time, lol.tv_sec, lol.tv_usec /1000);
-	return (lol.tv_sec * 1000 + lol.tv_usec / 1000 - time);
+	return (now.tv_sec * 1000 + now.tv_usec / 1000 - time);
+}
+
+int ft_usleep(int time)
+{
+	struct timeval	start_time;
+	struct timeval	end_time;
+    int				actual_time;
+
+    gettimeofday(&start_time, NULL);
+    usleep(time);
+    gettimeofday(&end_time, NULL);
+
+    actual_time = (end_time.tv_sec - start_time.tv_sec) * 1000 +
+                          (end_time.tv_usec - start_time.tv_usec) / 1000;
+
+    if (actual_time < time)
+        usleep(time - actual_time);
+	return(0);
 }
