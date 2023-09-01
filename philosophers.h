@@ -21,14 +21,14 @@
 
 typedef struct s_general_info
 {
-	int	philo_num;
-	int	time_die;
-	int	time_eat;
-	int	time_to_sleep;
-	int	course_number;
-	int	int_time;
-	int is_dead;
-	int glut;
+	int				philo_num;
+	int				time_die;
+	int				time_eat;
+	int				time_to_sleep;
+	int				course_number;
+	long			int_time;
+	int				is_dead;
+	int				glut;
 	pthread_mutex_t	*fork_mutex;
 	pthread_mutex_t	glut_mutex;
 	pthread_mutex_t	print_mutex;
@@ -46,7 +46,6 @@ typedef struct s_resource
 	pthread_t		thread;
 	t_general_info	*tgi;
 }t_resource;
-int			dead;
 
 int		ft_atoi(char *str);
 void	*ft_calloc(size_t count, size_t size);
@@ -55,7 +54,7 @@ int		eating(t_resource *rsrc);
 int		sleeping(t_resource *rsrc);
 int		thinking(t_resource *rsrc);
 int		is_dead(t_resource *rsrc, t_general_info *tgi);
-int		tick_tack(int time);
-int		ft_usleep(int time);
+long	tick_tack(long time);
+long	ft_usleep(long time, t_general_info *tgi);
 
 #endif
