@@ -53,8 +53,10 @@ int		taking_fork(t_resource *rsrc);
 int		eating(t_resource *rsrc);
 int		sleeping(t_resource *rsrc);
 int		thinking(t_resource *rsrc);
-int		is_dead(t_resource *rsrc, t_general_info *tgi);
+int		maybe_dead(t_resource *rsrc, t_general_info *tgi);
 long	tick_tack(long time);
 long	ft_usleep(long time, t_general_info *tgi);
+int		free_all(t_resource *rsrc, t_general_info *tgi);
+void	*daily_task(void *p);
 
 #endif

@@ -16,11 +16,13 @@ CC = gcc
 
 HEADER = philosophers.h\
 	utiles_philo.c\
-	actions.c
+	actions.c\
+	daily_task.c
 
 SRC = philosophers.c\
 	utiles_philo.c\
-	actions.c
+	actions.c\
+	daily_task.c
 
 CFLAGS = -Wextra -Werror -Wall #-g -fsanitize=thread
 

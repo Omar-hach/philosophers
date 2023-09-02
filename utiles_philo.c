@@ -56,7 +56,7 @@ long	tick_tack(long time)
 
 long	ft_usleep(long time, t_general_info *tgi)
 {
-	int	start;
+	long	start;
 
 	start = tick_tack(tgi->int_time);
 	while (1)
